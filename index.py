@@ -15,6 +15,31 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def convert_to_bangla_options(answers):
+    """Convert numeric answers to Bengali letters"""
+    conversion_map = {
+        1: 'ক',  # ka
+        2: 'খ',  # kha
+        3: 'গ',  # ga
+        4: 'ঘ'   # gha
+    }
+    
+    bangla_answers = {}
+    for question, answer in answers.items():
+        if isinstance(answer, (int, str)):
+            try:
+                numeric_answer = int(answer)
+                if numeric_answer in conversion_map:
+                    bangla_answers[question] = conversion_map[numeric_answer]
+                else:
+                    bangla_answers[question] = answer  # Keep original if not in range 1-4
+            except (ValueError, TypeError):
+                bangla_answers[question] = answer  # Keep original if not numeric
+        else:
+            bangla_answers[question] = answer
+    
+    return bangla_answers
+
 @app.route('/analyze-omr', methods=['POST'])
 def analyze_omr():
     """API endpoint to analyze OMR sheet from uploaded image"""
@@ -51,14 +76,17 @@ def analyze_omr():
         try:
             # Create analyzer and process the image
             analyzer = OMRAnalyzer()
-            answers = analyzer.analyze_omr(temp_path)
+            raw_answers = analyzer.analyze_omr(temp_path)
+            
+            # Convert numeric answers to Bengali letters
+            bangla_answers = convert_to_bangla_options(raw_answers)
             
             # Prepare JSON response
             response_data = {
                 'success': True,
                 'filename': filename,
-                'total_questions': len(answers),
-                'answers': answers
+                'total_questions': len(bangla_answers),
+                'answers': bangla_answers
             }
             
             return jsonify(response_data), 200
