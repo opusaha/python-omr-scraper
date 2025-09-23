@@ -1,53 +1,86 @@
-import sys
 import os
+import tempfile
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
 from omr_analyzer import OMRAnalyzer
 
-def main():
-    # Check if image path is provided
-    if len(sys.argv) < 2:
-        return
-    
-    image_path = sys.argv[1]
-    
-    # Check if file exists
-    if not os.path.exists(image_path):
-        print(f"❌ Error: File '{image_path}' not found!")
-        return
-    
-    # Create analyzer
-    analyzer = OMRAnalyzer()
-    
-    # Analyze the OMR sheet
-    answers = analyzer.analyze_omr(image_path)
-    
-    # Get formatted results
-    results = analyzer.format_results(answers)
-    
-    # Generate output filename
-    base_name = os.path.splitext(os.path.basename(image_path))[0]
-    output_file = f"results.txt"
-    
-    # Save results to text file
+app = Flask(__name__)
+
+# Configure upload settings
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp', 'tiff', 'tif'}
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+def allowed_file(filename):
+    """Check if uploaded file has allowed extension"""
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/analyze-omr', methods=['POST'])
+def analyze_omr():
+    """API endpoint to analyze OMR sheet from uploaded image"""
     try:
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(f"Image: {image_path}\n")
-            f.write("=" * 60 + "\n\n")
-            f.write(results)
+        # Check if file is present in request
+        if 'image' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No image file provided. Please upload an image with key "image"'
+            }), 400
         
-        # Also save a simple answer key format
-        if answers:
-            answer_key_file = f"answer_key.txt"
-            with open(answer_key_file, "w", encoding="utf-8") as f:
-                f.write(f"Answer Key for {image_path}\n")
-                f.write("=" * 40 + "\n\n")
-                
-                for q_num in sorted(answers.keys()):
-                    f.write(f"{q_num}. {answers[q_num]}\n")
-                
-                f.write(f"\nTotal: {len(answers)} questions answered")
+        file = request.files['image']
+        
+        # Check if file is selected
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No file selected'
+            }), 400
+        
+        # Check file extension
+        if not allowed_file(file.filename):
+            return jsonify({
+                'success': False,
+                'error': f'Invalid file type. Allowed types: {", ".join(ALLOWED_EXTENSIONS)}'
+            }), 400
+        
+        # Save uploaded file to temporary location
+        filename = secure_filename(file.filename)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as temp_file:
+            file.save(temp_file.name)
+            temp_path = temp_file.name
+        
+        try:
+            # Create analyzer and process the image
+            analyzer = OMRAnalyzer()
+            answers = analyzer.analyze_omr(temp_path)
+            
+            # Prepare JSON response
+            response_data = {
+                'success': True,
+                'filename': filename,
+                'total_questions': len(answers),
+                'answers': answers
+            }
+            
+            return jsonify(response_data), 200
+            
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
     
     except Exception as e:
-        print(f"❌ Error saving results: {e}")
+        return jsonify({
+            'success': False,
+            'error': f'Error processing image: {str(e)}'
+        }), 500
+
+@app.route('/', methods=['GET'])
+def home():
+    """Home endpoint with API information"""
+    return jsonify({
+        'message': 'OMR Analyzer API',
+        'supported_formats': list(ALLOWED_EXTENSIONS)
+    }), 200
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True, host='localhost', port=8000)
