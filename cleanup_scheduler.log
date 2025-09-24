@@ -1,0 +1,26 @@
+2025-09-24 10:21:07,477 - werkzeug - WARNING -  * Debugger is active!
+2025-09-24 10:21:07,483 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-24 10:21:17,780 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\index.py', reloading
+2025-09-24 10:21:18,229 - werkzeug - WARNING -  * Debugger is active!
+2025-09-24 10:21:18,233 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-24 10:21:22,006 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\index.py', reloading
+2025-09-24 10:21:22,599 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-24 10:21:22,599 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-24 10:21:22,599 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-24 10:21:22,614 - werkzeug - WARNING -  * Debugger is active!
+2025-09-24 10:21:22,618 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-24 10:22:36,499 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\scheduler.py', reloading
+2025-09-24 10:22:36,967 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-24 10:22:36,968 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-24 10:22:36,968 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-24 10:22:36,974 - werkzeug - WARNING -  * Debugger is active!
+2025-09-24 10:22:36,978 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-24 10:26:13,502 - MarkemImagesCleanupScheduler - INFO - Manual cleanup triggered
+2025-09-24 10:26:13,504 - MarkemImagesCleanupScheduler - INFO - Deleted file: tmp11ypg1rb_marked.png
+2025-09-24 10:26:13,505 - MarkemImagesCleanupScheduler - INFO - Cleanup completed. Deleted: 1 files, Failed: 0 files
+2025-09-24 10:26:13,506 - werkzeug - INFO - 127.0.0.1 - - [24/Sep/2025 10:26:13] "POST /cleanup/manual HTTP/1.1" 200 -
+2025-09-24 10:26:38,821 - werkzeug - INFO - 127.0.0.1 - - [24/Sep/2025 10:26:38] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-24 10:26:50,185 - MarkemImagesCleanupScheduler - INFO - Manual cleanup triggered
+2025-09-24 10:26:50,185 - MarkemImagesCleanupScheduler - INFO - Deleted file: tmpdpz8ya2n_marked.png
+2025-09-24 10:26:50,200 - MarkemImagesCleanupScheduler - INFO - Cleanup completed. Deleted: 1 files, Failed: 0 files
+2025-09-24 10:26:50,200 - werkzeug - INFO - 127.0.0.1 - - [24/Sep/2025 10:26:50] "POST /cleanup/manual HTTP/1.1" 200 -

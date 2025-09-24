@@ -4,6 +4,7 @@ import json
 from flask import Flask, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from omr_analyzer import OMRAnalyzer
+from scheduler import start_cleanup_scheduler, stop_cleanup_scheduler, manual_cleanup, get_scheduler_status
 
 app = Flask(__name__)
 
@@ -206,17 +207,91 @@ def download_marked_image(filename):
             'error': f'Error downloading file: {str(e)}'
         }), 500
 
+@app.route('/cleanup/manual', methods=['POST'])
+def manual_cleanup_endpoint():
+    """Manually trigger cleanup of marked_images folder"""
+    try:
+        manual_cleanup()
+        return jsonify({
+            'success': True,
+            'message': 'Manual cleanup completed successfully'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Error during manual cleanup: {str(e)}'
+        }), 500
+
+@app.route('/cleanup/status', methods=['GET'])
+def cleanup_status():
+    """Get current status of cleanup scheduler"""
+    try:
+        status = get_scheduler_status()
+        return jsonify({
+            'success': True,
+            'scheduler_status': status
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Error getting scheduler status: {str(e)}'
+        }), 500
+
+@app.route('/cleanup/start', methods=['POST'])
+def start_scheduler_endpoint():
+    """Start the cleanup scheduler"""
+    try:
+        start_cleanup_scheduler()
+        return jsonify({
+            'success': True,
+            'message': 'Cleanup scheduler started successfully'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Error starting scheduler: {str(e)}'
+        }), 500
+
+@app.route('/cleanup/stop', methods=['POST'])
+def stop_scheduler_endpoint():
+    """Stop the cleanup scheduler"""
+    try:
+        stop_cleanup_scheduler()
+        return jsonify({
+            'success': True,
+            'message': 'Cleanup scheduler stopped successfully'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Error stopping scheduler: {str(e)}'
+        }), 500
+
 @app.route('/', methods=['GET'])
 def home():
     """Home endpoint with API information"""
     return jsonify({
-        'message': 'OMR Analyzer API',
+        'message': 'OMR Analyzer API with Background Cleanup Scheduler',
         'supported_formats': list(ALLOWED_EXTENSIONS),
         'endpoints': {
             'analyze': '/analyze-omr',
-            'download': '/download-marked-image/<filename>'
+            'download': '/download-marked-image/<filename>',
+            'cleanup_manual': '/cleanup/manual',
+            'cleanup_status': '/cleanup/status',
+            'cleanup_start': '/cleanup/start',
+            'cleanup_stop': '/cleanup/stop'
         }
     }), 200
 
 if __name__ == "__main__":
-    app.run(debug=True, host='localhost', port=8000)
+    # Start the background cleanup scheduler
+    print("Starting background cleanup scheduler...")
+    start_cleanup_scheduler()
+    print("Background cleanup scheduler started successfully!")
+    
+    try:
+        app.run(debug=True, host='localhost', port=8000)
+    except KeyboardInterrupt:
+        print("\nShutting down...")
+        stop_cleanup_scheduler()
+        print("Cleanup scheduler stopped.")
