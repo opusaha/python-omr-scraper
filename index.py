@@ -151,16 +151,15 @@ def analyze_omr():
                     'missing_answers': missing
                 }
                 
-                # Always generate marked image when correct answers are provided
+                # Generate marked image with correct answers highlighted
                 marked_image_path = None
                 marked_image_url = None
-                if correct_answers:
-                    # Generate marked image showing all answers (mark incorrect ones with green circles)
-                    marked_image_path = analyzer.generate_marked_image(temp_path, bangla_answers, correct_answers)
-                    if marked_image_path:
-                        # Generate download URL
-                        marked_filename = os.path.basename(marked_image_path)
-                        marked_image_url = f"/download-marked-image/{marked_filename}"
+                # Always generate marked image when correct answers are provided
+                marked_image_path = analyzer.mark_unmatched_answers(temp_path, unmatched, correct_answers)
+                if marked_image_path:
+                    # Generate download URL
+                    marked_filename = os.path.basename(marked_image_path)
+                    marked_image_url = f"/download-marked-image/{marked_filename}"
             
             # Prepare JSON response
             response_data = {
