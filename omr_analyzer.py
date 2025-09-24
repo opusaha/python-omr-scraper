@@ -421,6 +421,425 @@ class OMRAnalyzer:
         result += "\n"
         
         return result
+    
+    def generate_marked_image(self, image_path: str, detected_answers: Dict, correct_answers: Dict) -> str:
+        """Generate marked image showing all answers with green circles on incorrect ones"""
+        if not self.load_image(image_path):
+            return ""
+        
+        # Compare answers to find unmatched ones
+        unmatched_data = {}
+        for question, detected in detected_answers.items():
+            if question in correct_answers:
+                if detected != correct_answers[question]:
+                    unmatched_data[question] = {
+                        'detected': detected,
+                        'correct': correct_answers[question]
+                    }
+        
+        print(f"🔍 Found {len(unmatched_data)} unmatched answers out of {len(detected_answers)} detected")
+        
+        # Detect all circles first
+        circles = self.detect_circles()
+        if not circles:
+            print("No circles detected for marking")
+            # Still create a copy of original image even if no circles detected
+            return self._save_original_as_marked(image_path)
+        
+        # Create a copy of the image for marking
+        marked_image = self.image.copy()
+        
+        # Get image dimensions
+        height, width = self.gray.shape
+        
+        # Use the same logic as flexible_layout_detection to organize circles
+        rows = {}
+        row_tolerance = 25  # Same as in flexible_layout_detection
+        
+        # Group circles by Y coordinate (rows) - same as analysis method
+        for x, y, r in circles:
+            found_row = False
+            for row_y in rows.keys():
+                if abs(y - row_y) <= row_tolerance:
+                    rows[row_y].append((x, y, r))
+                    found_row = True
+                    break
+            
+            if not found_row:
+                rows[y] = [(x, y, r)]
+        
+        # Sort rows by Y coordinate (top to bottom)
+        sorted_rows = sorted(rows.items(), key=lambda r: r[0])
+        
+        # Detect layout type (same logic as flexible_layout_detection)
+        sample_row_sizes = [len(row_circles) for _, row_circles in sorted_rows[:3]]
+        avg_circles_per_row = sum(sample_row_sizes) / len(sample_row_sizes) if sample_row_sizes else 4
+        
+        # Determine layout type
+        if avg_circles_per_row <= 5:  # Single question per row
+            num_columns = 1
+        elif avg_circles_per_row <= 10:  # 2 questions per row
+            num_columns = 2  
+        elif avg_circles_per_row <= 15:  # 3 questions per row
+            num_columns = 3
+        else:  # 4+ questions per row
+            num_columns = 4
+        
+        print(f"📊 Layout for marking: {num_columns} columns, avg {avg_circles_per_row:.1f} circles per row")
+        
+        # Set up column centers for multi-column layouts
+        column_centers = []
+        if num_columns > 1:
+            if num_columns == 2:
+                column_centers = [width // 4, 3 * width // 4]
+            elif num_columns == 3:
+                column_centers = [width // 6, width // 2, 5 * width // 6]
+            else:  # 4 columns
+                column_centers = [width // 8, 3 * width // 8, 5 * width // 8, 7 * width // 8]
+        
+        # Mark incorrect answers with green circles
+        marked_count = 0
+        if unmatched_data:
+            for question_num, answer_info in unmatched_data.items():
+                correct_answer = answer_info['correct']
+                
+                # Convert Bengali letter to option number (1-4)
+                option_number = self._convert_bangla_to_option_number(correct_answer)
+                if option_number is None:
+                    continue
+                
+                print(f"🎯 Marking Q{question_num}: '{answer_info['detected']}' → '{correct_answer}' (option {option_number})")
+                    
+                # Find circles for this specific question using the same logic as analysis
+                question_circles = self._find_circles_for_question_dynamic(
+                    circles, question_num, sorted_rows, num_columns, column_centers, width
+                )
+                
+                # Sort circles by X coordinate to get option order (ক, খ, গ, ঘ)
+                question_circles.sort(key=lambda c: c[0])
+                
+                # Mark the correct option with green circle
+                if len(question_circles) >= option_number:
+                    x, y, r = question_circles[option_number - 1]  # -1 because list is 0-indexed
+                    
+                    # Draw a thick green circle around the correct option
+                    cv2.circle(marked_image, (x, y), r + 5, (0, 255, 0), 4)  # Green color in BGR
+                    # Also add a green fill with transparency effect
+                    overlay = marked_image.copy()
+                    cv2.circle(overlay, (x, y), r - 2, (0, 255, 0), -1)
+                    marked_image = cv2.addWeighted(marked_image, 0.7, overlay, 0.3, 0)
+                    marked_count += 1
+                else:
+                    print(f"⚠️ Warning: Not enough circles found for Q{question_num} (found {len(question_circles)}, need {option_number})")
+        
+        if marked_count > 0:
+            print(f"✅ Successfully marked {marked_count} incorrect answers with green circles")
+        else:
+            print(f"🎉 No incorrect answers to mark - all answers are correct!")
+        
+        # Save the marked image
+        return self._save_marked_image(image_path, marked_image)
+    
+    def _save_original_as_marked(self, image_path: str) -> str:
+        """Save original image as marked when no circles are detected"""
+        import os
+        filename = os.path.basename(image_path)
+        name, ext = os.path.splitext(filename)
+        
+        # Create marked images directory in project root
+        project_root = os.getcwd()
+        marked_dir = os.path.join(project_root, 'marked_images')
+        
+        if not os.path.exists(marked_dir):
+            os.makedirs(marked_dir, exist_ok=True)
+        
+        output_path = os.path.join(marked_dir, f"{name}_marked{ext}")
+        
+        # Copy original image
+        import shutil
+        shutil.copy2(image_path, output_path)
+        
+        if os.path.exists(output_path):
+            print(f"📁 Original image saved as marked: {output_path}")
+            return output_path
+        
+        return ""
+    
+    def _save_marked_image(self, image_path: str, marked_image) -> str:
+        """Save the marked image to disk"""
+        import os
+        filename = os.path.basename(image_path)
+        name, ext = os.path.splitext(filename)
+        
+        # Create marked images directory in project root
+        project_root = os.getcwd()
+        marked_dir = os.path.join(project_root, 'marked_images')
+        
+        # Ensure directory exists
+        if not os.path.exists(marked_dir):
+            os.makedirs(marked_dir, exist_ok=True)
+            print(f"📁 Created marked_images directory at: {marked_dir}")
+        
+        output_path = os.path.join(marked_dir, f"{name}_marked{ext}")
+        
+        # Save the image and verify it was saved
+        success = cv2.imwrite(output_path, marked_image)
+        if success:
+            print(f"✅ Marked image successfully saved to: {output_path}")
+            # Verify file exists
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                print(f"✅ File verified: {output_path} ({file_size} bytes)")
+            else:
+                print(f"❌ File not found after saving: {output_path}")
+                return ""
+        else:
+            print(f"❌ Failed to save marked image to: {output_path}")
+            return ""
+        
+        return output_path
+    
+    def mark_unmatched_answers(self, image_path: str, unmatched_data: Dict, correct_answers: Dict) -> str:
+        """Mark correct answers for unmatched questions with green circles and save the modified image"""
+        if not self.load_image(image_path):
+            return ""
+        
+        # Detect all circles first
+        circles = self.detect_circles()
+        if not circles:
+            print("No circles detected for marking")
+            return ""
+        
+        # Create a copy of the image for marking
+        marked_image = self.image.copy()
+        
+        # Get image dimensions
+        height, width = self.gray.shape
+        
+        # Use the same logic as flexible_layout_detection to organize circles
+        rows = {}
+        row_tolerance = 25  # Same as in flexible_layout_detection
+        
+        # Group circles by Y coordinate (rows) - same as analysis method
+        for x, y, r in circles:
+            found_row = False
+            for row_y in rows.keys():
+                if abs(y - row_y) <= row_tolerance:
+                    rows[row_y].append((x, y, r))
+                    found_row = True
+                    break
+            
+            if not found_row:
+                rows[y] = [(x, y, r)]
+        
+        # Sort rows by Y coordinate (top to bottom)
+        sorted_rows = sorted(rows.items(), key=lambda r: r[0])
+        
+        # Detect layout type (same logic as flexible_layout_detection)
+        sample_row_sizes = [len(row_circles) for _, row_circles in sorted_rows[:3]]
+        avg_circles_per_row = sum(sample_row_sizes) / len(sample_row_sizes) if sample_row_sizes else 4
+        
+        # Determine layout type
+        if avg_circles_per_row <= 5:  # Single question per row
+            num_columns = 1
+        elif avg_circles_per_row <= 10:  # 2 questions per row
+            num_columns = 2  
+        elif avg_circles_per_row <= 15:  # 3 questions per row
+            num_columns = 3
+        else:  # 4+ questions per row
+            num_columns = 4
+        
+        print(f"Detected layout for marking: {num_columns} columns, avg {avg_circles_per_row:.1f} circles per row")
+        
+        # Set up column centers for multi-column layouts
+        column_centers = []
+        if num_columns > 1:
+            if num_columns == 2:
+                column_centers = [width // 4, 3 * width // 4]
+            elif num_columns == 3:
+                column_centers = [width // 6, width // 2, 5 * width // 6]
+            else:  # 4 columns
+                column_centers = [width // 8, 3 * width // 8, 5 * width // 8, 7 * width // 8]
+        
+        # Mark correct answers for unmatched questions with green circles
+        for question_num, answer_info in unmatched_data.items():
+            correct_answer = answer_info['correct']
+            
+            # Convert Bengali letter to option number (1-4)
+            option_number = self._convert_bangla_to_option_number(correct_answer)
+            if option_number is None:
+                continue
+            
+            print(f"Marking question {question_num}: correct answer '{correct_answer}' (option {option_number})")
+                
+            # Find circles for this specific question using the same logic as analysis
+            question_circles = self._find_circles_for_question_dynamic(
+                circles, question_num, sorted_rows, num_columns, column_centers, width
+            )
+            
+            # Sort circles by X coordinate to get option order (ক, খ, গ, ঘ)
+            question_circles.sort(key=lambda c: c[0])
+            
+            print(f"Found {len(question_circles)} circles for question {question_num}")
+            
+            # Mark the correct option with green circle
+            if len(question_circles) >= option_number:
+                x, y, r = question_circles[option_number - 1]  # -1 because list is 0-indexed
+                print(f"Marking option {option_number} at position ({x}, {y}) with radius {r}")
+                
+                # Draw a thick green circle around the correct option
+                cv2.circle(marked_image, (x, y), r + 5, (0, 255, 0), 4)  # Green color in BGR
+                # Also add a green fill with transparency effect
+                overlay = marked_image.copy()
+                cv2.circle(overlay, (x, y), r - 2, (0, 255, 0), -1)
+                marked_image = cv2.addWeighted(marked_image, 0.7, overlay, 0.3, 0)
+            else:
+                print(f"Warning: Not enough circles found for question {question_num} (found {len(question_circles)}, need {option_number})")
+        
+        # Save the marked image in the project root directory
+        import os
+        filename = os.path.basename(image_path)
+        name, ext = os.path.splitext(filename)
+        
+        # Create marked images directory in project root
+        project_root = os.getcwd()  # Get current working directory (project root)
+        marked_dir = os.path.join(project_root, 'marked_images')
+        
+        # Ensure directory exists
+        if not os.path.exists(marked_dir):
+            os.makedirs(marked_dir, exist_ok=True)
+            print(f"Created marked_images directory at: {marked_dir}")
+        
+        output_path = os.path.join(marked_dir, f"{name}_marked{ext}")
+        
+        # Save the image and verify it was saved
+        success = cv2.imwrite(output_path, marked_image)
+        if success:
+            print(f"✅ Marked image successfully saved to: {output_path}")
+            # Verify file exists
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                print(f"✅ File verified: {output_path} ({file_size} bytes)")
+            else:
+                print(f"❌ File not found after saving: {output_path}")
+                return ""
+        else:
+            print(f"❌ Failed to save marked image to: {output_path}")
+            return ""
+        
+        return output_path
+    
+    def _convert_bangla_to_option_number(self, bangla_letter: str) -> int:
+        """Convert Bengali letter to option number (1-4)"""
+        conversion_map = {
+            'ক': 1,  # ka
+            'খ': 2,  # kha
+            'গ': 3,  # ga
+            'ঘ': 4   # gha
+        }
+        return conversion_map.get(bangla_letter)
+    
+    def _find_circles_for_question_dynamic(self, circles: List[Tuple[int, int, int]], question_num: int, sorted_rows: List, num_columns: int, column_centers: List, width: int) -> List[Tuple[int, int, int]]:
+        """Find circles for a specific question using the same logic as flexible_layout_detection"""
+        
+        if num_columns == 1:
+            # Single column layout - question_num directly maps to row
+            target_row_idx = question_num - 1
+            if target_row_idx < len(sorted_rows):
+                row_y, row_circles = sorted_rows[target_row_idx]
+                row_circles.sort(key=lambda c: c[0])  # Sort by X coordinate
+                if len(row_circles) >= 4:
+                    return row_circles[-4:]  # Return last 4 circles (option circles)
+        
+        else:
+            # Multi-column layout - need to reverse engineer which row/column has this question
+            for row_idx, (row_y, row_circles) in enumerate(sorted_rows):
+                # Sort circles in this row by X coordinate
+                row_circles.sort(key=lambda c: c[0])
+                
+                # Group circles by columns
+                col_groups = [[] for _ in range(num_columns)]
+                
+                for circle in row_circles:
+                    x, y, r = circle
+                    # Determine which column this circle belongs to
+                    min_dist = float('inf')
+                    best_col = 0
+                    
+                    for col_idx, center_x in enumerate(column_centers):
+                        dist = abs(x - center_x)
+                        if dist < min_dist:
+                            min_dist = dist
+                            best_col = col_idx
+                    
+                    col_groups[best_col].append(circle)
+                
+                # Check each column in this row
+                for col_idx, col_circles in enumerate(col_groups):
+                    if len(col_circles) >= 4:  # Should have 4 option circles
+                        col_circles.sort(key=lambda c: c[0])  # Sort by X within column
+                        
+                        # Calculate question number for this position (same logic as analysis)
+                        current_row = row_idx
+                        if num_columns == 2:
+                            # Hope Wheeler style: row-based numbering
+                            if col_idx == 0:  # Left column
+                                calc_question_num = current_row + 1
+                            else:  # Right column  
+                                calc_question_num = current_row + 11
+                        else:
+                            # Nexes style: column-based numbering
+                            questions_per_col = 23
+                            base_question = col_idx * questions_per_col + 1
+                            calc_question_num = base_question + current_row
+                        
+                        # If this matches our target question number, return the option circles
+                        if calc_question_num == question_num:
+                            return col_circles[-4:]  # Return last 4 circles (option circles)
+        
+        return []  # Question not found
+    
+    def _find_circles_for_question(self, circles: List[Tuple[int, int, int]], question_num: int, height: int, width: int) -> List[Tuple[int, int, int]]:
+        """Find all option circles for a specific question number"""
+        # Determine which column this question belongs to based on numbering
+        if question_num <= 23:
+            column = 0
+        elif question_num <= 46:
+            column = 1
+        elif question_num <= 69:
+            column = 2
+        else:
+            column = 3
+        
+        # Calculate expected row for this question
+        if column == 0:
+            row_in_column = question_num - 1
+        elif column == 1:
+            row_in_column = question_num - 24
+        elif column == 2:
+            row_in_column = question_num - 47
+        else:
+            row_in_column = question_num - 70
+        
+        # Estimate Y coordinate for this row
+        expected_y = int((row_in_column / 23) * height) + 50  # Add some offset from top
+        
+        # Find circles near this expected position
+        question_circles = []
+        y_tolerance = 30  # Tolerance for Y coordinate matching
+        
+        for x, y, r in circles:
+            # Check if this circle is in the right vertical position
+            if abs(y - expected_y) < y_tolerance:
+                # Check if it's in the right column area
+                col_width = width // 4
+                col_start = column * col_width
+                col_end = (column + 1) * col_width
+                
+                if col_start <= x <= col_end:
+                    question_circles.append((x, y, r))
+        
+        return question_circles
 
 def main():
     parser = argparse.ArgumentParser(description='OMR Sheet Analyzer')
