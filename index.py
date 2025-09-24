@@ -114,6 +114,8 @@ def analyze_omr():
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as temp_file:
             file.save(temp_file.name)
             temp_path = temp_file.name
+
+        marked_image_url = None
         
         try:
             # Parse correct answers if provided
@@ -169,7 +171,8 @@ def analyze_omr():
                 'total_questions': len(bangla_answers),
                 'answers': bangla_answers,
                 'comparison': comparison_results,
-                'marked_image_url': marked_image_url
+                'marked_image_url': marked_image_url,
+                'student_answers': correct_answers
             }
             
             return jsonify(response_data), 200
