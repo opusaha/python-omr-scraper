@@ -1,0 +1,23 @@
+[Unit]
+Description=OMR Scraper Flask Application
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/omr-scraper
+Environment=PATH=/var/www/omr-scraper/venv/bin
+Environment=PORT=8002
+Environment=SECRET_KEY=your-secret-key-change-this-in-production
+ExecStart=/var/www/omr-scraper/venv/bin/python app.py
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=omr-scraper
+
+[Install]
+WantedBy=multi-user.target
