@@ -1,0 +1,220 @@
+2025-09-24 16:06:45,128 - werkzeug - INFO - 127.0.0.1 - - [24/Sep/2025 16:06:45] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-24 16:06:45,357 - werkzeug - INFO - 127.0.0.1 - - [24/Sep/2025 16:06:45] "GET /download-marked-image/tmprxzwetyr_marked.png HTTP/1.1" 200 -
+2025-09-24 16:14:07,886 - werkzeug - INFO - 127.0.0.1 - - [24/Sep/2025 16:14:07] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-24 16:14:08,121 - werkzeug - INFO - 127.0.0.1 - - [24/Sep/2025 16:14:08] "GET /download-marked-image/tmptgvgkpro_marked.png HTTP/1.1" 200 -
+2025-09-25 08:36:18,394 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 08:36:18,394 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 08:36:18,400 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 08:36:18,608 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://localhost:8000
+2025-09-25 08:36:18,608 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-09-25 08:36:18,636 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 08:36:19,043 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 08:36:19,052 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 08:36:19,052 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 08:36:19,060 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 08:36:19,061 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 08:36:33,932 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 08:36:33] "GET / HTTP/1.1" 200 -
+2025-09-25 08:36:34,082 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 08:36:34] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-09-25 08:40:11,346 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 08:40:11] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 08:40:14,362 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 08:40:14] "GET /download-marked-image/tmpo27i0oyn_marked.png HTTP/1.1" 200 -
+2025-09-25 08:59:41,945 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 08:59:41] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 08:59:42,169 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 08:59:42] "GET /download-marked-image/tmpyn0eog3n_marked.png HTTP/1.1" 200 -
+2025-09-25 09:06:26,866 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 09:06:26] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 09:06:27,114 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 09:06:27] "GET /download-marked-image/tmph04sbt5z_marked.png HTTP/1.1" 200 -
+2025-09-25 10:52:35,861 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:52:36,071 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:52:36,639 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:52:36,639 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:52:36,639 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:52:36,654 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:52:36,671 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:53:10,050 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:53:10,167 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:53:10,571 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:53:10,574 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:53:10,574 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:53:10,585 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:53:10,592 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:53:35,333 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:53:35,520 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:53:36,416 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:53:36,416 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:53:36,416 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:53:36,432 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:53:36,443 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:54:34,782 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:54:34,848 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:54:35,498 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:54:35,500 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:54:35,500 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:54:35,504 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:54:35,518 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:54:57,763 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:54:57,818 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:54:58,383 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:54:58,386 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:54:58,386 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:54:58,394 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:54:58,404 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:55:11,229 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:55:11,274 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:55:11,671 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:55:11,671 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:55:11,671 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:55:11,694 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:55:11,703 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:55:18,485 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:55:18,629 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:55:19,316 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:55:19,317 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:55:19,317 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:55:19,319 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:55:19,328 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:55:32,339 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:55:32,523 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:55:32,914 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:55:32,916 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:55:32,916 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:55:32,920 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:55:32,920 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:55:40,737 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:55:40,798 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:55:41,725 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:55:41,725 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:55:41,725 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:55:41,734 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:55:41,740 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:55:47,241 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\index.py', reloading
+2025-09-25 10:55:47,283 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:55:47,620 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:55:47,620 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:55:47,620 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:55:47,628 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:55:47,638 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:55:53,003 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:55:53,158 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:55:53,551 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:55:53,551 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:55:53,551 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:55:53,551 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:55:53,568 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:56:32,081 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:56:32,164 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:56:32,570 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:56:32,570 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:56:32,570 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:56:32,570 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:56:32,584 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:57:12,194 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:57:12,194 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:57:12,194 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:57:12,210 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://localhost:8000
+2025-09-25 10:57:12,210 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-09-25 10:57:12,213 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:57:12,633 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:57:12,634 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:57:12,634 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:57:12,641 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:57:12,647 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 10:57:56,304 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 10:57:56] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 10:57:56,573 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 10:57:56] "GET /download-marked-image/tmpruax6u3k_marked.png HTTP/1.1" 200 -
+2025-09-25 10:58:36,228 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 10:58:36,261 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 10:58:36,588 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 10:58:36,588 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 10:58:36,588 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 10:58:36,588 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 10:58:36,588 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:10:24,138 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:10:24,289 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:10:24,768 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:10:24,768 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:10:24,768 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:10:24,787 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:10:24,791 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:10:43,649 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:10:43,771 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:10:44,483 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:10:44,484 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:10:44,484 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:10:44,491 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:10:44,495 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:10:57,321 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:10:57,455 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:10:58,019 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:10:58,019 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:10:58,019 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:10:58,024 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:10:58,028 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:11:18,112 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:11:18,215 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:11:18,950 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:11:18,954 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:11:18,954 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:11:18,967 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:11:18,981 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:11:34,681 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:11:34,771 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:11:35,104 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:11:35,105 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:11:35,105 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:11:35,110 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:11:35,115 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:11:41,984 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:11:42,087 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:11:42,765 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:11:42,765 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:11:42,765 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:11:42,772 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:11:42,775 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:12:05,000 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:12:05,046 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:12:05,452 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:12:05,452 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:12:05,452 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:12:05,469 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:12:05,473 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:13:41,525 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:13:41] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 11:13:41,794 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:13:41] "GET /download-marked-image/tmpyj__c2uc_marked.png HTTP/1.1" 200 -
+2025-09-25 11:14:15,111 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:14:15] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 11:14:15,356 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:14:15] "GET /download-marked-image/tmpwnyusfqb_marked.png HTTP/1.1" 200 -
+2025-09-25 11:16:13,610 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:16:13] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 11:16:13,848 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:16:13] "GET /download-marked-image/tmp90hv0yry_marked.png HTTP/1.1" 200 -
+2025-09-25 11:18:23,743 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:18:23,901 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:18:24,460 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:18:24,461 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:18:24,461 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:18:24,467 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:18:24,471 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:18:37,512 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:18:37,649 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:18:38,072 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:18:38,072 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:18:38,073 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:18:38,077 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:18:38,081 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:18:48,209 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:18:48,238 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:18:48,587 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:18:48,587 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:18:48,587 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:18:48,595 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:18:48,599 - werkzeug - INFO -  * Debugger PIN: 894-631-857
+2025-09-25 11:20:42,506 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:20:42] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 11:20:42,779 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:20:42] "GET /download-marked-image/tmp1h7ok82__marked.png HTTP/1.1" 200 -
+2025-09-25 11:21:08,765 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:21:08] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 11:21:09,011 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:21:09] "GET /download-marked-image/tmp1mny0mo9_marked.png HTTP/1.1" 200 -
+2025-09-25 11:21:34,759 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:21:34] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 11:21:34,982 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:21:34] "GET /download-marked-image/tmp02gvoiqj_marked.png HTTP/1.1" 200 -
+2025-09-25 11:22:36,373 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:22:36] "POST /analyze-omr HTTP/1.1" 200 -
+2025-09-25 11:22:36,610 - werkzeug - INFO - 127.0.0.1 - - [25/Sep/2025 11:22:36] "GET /download-marked-image/tmpw21v31zr_marked.png HTTP/1.1" 200 -
+2025-09-25 11:22:45,916 - werkzeug - INFO -  * Detected change in 'D:\\Projects\\python-omr-scraper\\omr_analyzer.py', reloading
+2025-09-25 11:22:45,991 - werkzeug - INFO -  * Restarting with stat
+2025-09-25 11:22:46,386 - MarkemImagesCleanupScheduler - INFO - Scheduled daily cleanup at 2:00 AM
+2025-09-25 11:22:46,386 - MarkemImagesCleanupScheduler - INFO - Starting cleanup scheduler...
+2025-09-25 11:22:46,386 - MarkemImagesCleanupScheduler - INFO - Background cleanup scheduler started successfully
+2025-09-25 11:22:46,386 - werkzeug - WARNING -  * Debugger is active!
+2025-09-25 11:22:46,386 - werkzeug - INFO -  * Debugger PIN: 894-631-857

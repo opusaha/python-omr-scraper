@@ -38,44 +38,113 @@ class OMRAnalyzer:
             return False
     
     def detect_circles(self) -> List[Tuple[int, int, int]]:
-        """Detect all circles in the image using HoughCircles"""
+        """Detect all circles in the image using improved HoughCircles"""
         # Apply Gaussian blur to reduce noise
-        blurred = cv2.GaussianBlur(self.gray, (9, 9), 2)
+        blurred = cv2.GaussianBlur(self.gray, (5, 5), 1.5)
         
-        # Detect circles using HoughCircles
-        circles = cv2.HoughCircles(
+        # Try multiple parameter sets for better detection
+        all_circles = []
+        
+        # Parameter set 1: Standard detection
+        circles1 = cv2.HoughCircles(
             blurred,
             cv2.HOUGH_GRADIENT,
             dp=1,
-            minDist=30,  # Minimum distance between circle centers
-            param1=50,   # Higher threshold for edge detection
-            param2=30,   # Accumulator threshold for center detection
+            minDist=25,  # Reduced minimum distance
+            param1=50,
+            param2=25,   # Lower accumulator threshold
             minRadius=self.min_circle_radius,
             maxRadius=self.max_circle_radius
         )
         
-        if circles is not None:
-            circles = np.round(circles[0, :]).astype("int")
-            return [(x, y, r) for x, y, r in circles]
-        return []
+        if circles1 is not None:
+            circles1 = np.round(circles1[0, :]).astype("int")
+            all_circles.extend([(x, y, r) for x, y, r in circles1])
+        
+        # Parameter set 2: More sensitive detection
+        circles2 = cv2.HoughCircles(
+            blurred,
+            cv2.HOUGH_GRADIENT,
+            dp=1,
+            minDist=20,
+            param1=40,   # Lower edge threshold
+            param2=20,   # Even lower accumulator threshold
+            minRadius=self.min_circle_radius,
+            maxRadius=self.max_circle_radius
+        )
+        
+        if circles2 is not None:
+            circles2 = np.round(circles2[0, :]).astype("int")
+            all_circles.extend([(x, y, r) for x, y, r in circles2])
+        
+        # Remove duplicates (circles that are very close to each other)
+        unique_circles = self._remove_duplicate_circles(all_circles)
+        
+        print(f"HoughCircles detected {len(all_circles)} total, {len(unique_circles)} unique circles")
+        return unique_circles
+    
+    def _remove_duplicate_circles(self, circles: List[Tuple[int, int, int]]) -> List[Tuple[int, int, int]]:
+        """Remove duplicate circles that are too close to each other"""
+        if not circles:
+            return []
+        
+        unique_circles = []
+        min_distance = 15  # Minimum distance between circle centers
+        
+        for x, y, r in circles:
+            is_duplicate = False
+            for ux, uy, ur in unique_circles:
+                distance = np.sqrt((x - ux)**2 + (y - uy)**2)
+                if distance < min_distance:
+                    is_duplicate = True
+                    break
+            
+            if not is_duplicate:
+                unique_circles.append((x, y, r))
+        
+        return unique_circles
     
     def is_circle_filled(self, x: int, y: int, radius: int) -> bool:
-        """Check if a circle is filled by analyzing pixel intensity"""
-        # Create a mask for the circle
+        """Improved method to check if a circle is filled by analyzing pixel intensity"""
+        # Ensure coordinates are within image bounds
+        height, width = self.gray.shape
+        if x < radius or y < radius or x >= width - radius or y >= height - radius:
+            return False
+        
+        # Create a mask for the circle with slightly smaller radius to avoid edge effects
         mask = np.zeros(self.gray.shape, dtype=np.uint8)
-        cv2.circle(mask, (x, y), radius - 2, 255, -1)
+        inner_radius = max(1, radius - 3)  # Use smaller radius to focus on center
+        cv2.circle(mask, (x, y), inner_radius, 255, -1)
         
         # Get pixels inside the circle
         circle_pixels = self.gray[mask == 255]
         
         if len(circle_pixels) == 0:
             return False
-            
-        # Calculate the percentage of dark pixels
-        dark_pixels = np.sum(circle_pixels < 127)
+        
+        # Calculate statistics
+        mean_intensity = np.mean(circle_pixels)
+        median_intensity = np.median(circle_pixels)
+        
+        # Use multiple criteria for better accuracy
+        # Criterion 1: Dark pixel percentage
+        dark_pixels = np.sum(circle_pixels < 120)  # Slightly higher threshold
         fill_ratio = dark_pixels / len(circle_pixels)
         
-        return fill_ratio > self.filled_threshold
+        # Criterion 2: Mean intensity (filled circles should be darker)
+        mean_threshold = mean_intensity < 100
+        
+        # Criterion 3: Median intensity (more robust to outliers)
+        median_threshold = median_intensity < 110
+        
+        # Circle is considered filled if it meets multiple criteria
+        is_filled = (fill_ratio > 0.5) and (mean_threshold or median_threshold)
+        
+        # Debug output for troubleshooting
+        if is_filled:
+            print(f"Filled circle at ({x}, {y}): fill_ratio={fill_ratio:.2f}, mean={mean_intensity:.1f}, median={median_intensity:.1f}")
+        
+        return is_filled
     
     def organize_circles_by_grid(self, circles: List[Tuple[int, int, int]]) -> Dict[int, Dict[int, List[Tuple[int, int, int]]]]:
         """Organize circles into a grid structure based on their positions"""
@@ -181,25 +250,130 @@ class OMRAnalyzer:
         return base_question + row
     
     def flexible_layout_detection(self) -> Dict[int, int]:
-        """Flexible method to detect any OMR layout with column-wise numbering"""
+        """Improved method with accurate column-wise sequential numbering for 2-4 columns"""
         circles = self.detect_circles()
         
         if not circles:
             print("No circles detected in the image")
             return {}
         
-        print(f"Detected {len(circles)} circles")
+        print(f"Detected {len(circles)} total circles")
         
         filled_answers = {}
         height, width = self.gray.shape
         
-        # Step 1: Group circles by Y coordinate (rows)
+        # Step 1: Detect columns by analyzing X-coordinate distribution
+        all_x_coords = [c[0] for c in circles]
+        columns = self._detect_columns_by_clustering(all_x_coords, width)
+        num_columns = len(columns)
+        
+        print(f"Detected {num_columns} columns with boundaries: {columns}")
+        
+        # Step 2: Group circles by rows (Y coordinate)
+        rows = self._group_circles_by_rows(circles)
+        sorted_rows = sorted(rows.items(), key=lambda r: r[0])
+        
+        print(f"Detected {len(sorted_rows)} rows")
+        
+        # Step 3: Process columns one by one (column-wise numbering)
+        column_question_counts = [0] * num_columns
+        question_counter = 1  # Sequential question numbering
+        
+        # Process each column from left to right
+        for col_idx in range(num_columns):
+            print(f"\nProcessing Column {col_idx + 1}:")
+            
+            # For each row, check if this column has circles
+            for row_idx, (row_y, row_circles) in enumerate(sorted_rows):
+                # Sort circles in this row by X coordinate
+                row_circles.sort(key=lambda c: c[0])
+                
+                # Group circles by columns
+                col_groups = self._assign_circles_to_columns(row_circles, columns)
+                
+                # Get circles for current column
+                col_circles = col_groups.get(col_idx, [])
+                
+                if len(col_circles) >= 4:  # Should have at least 4 option circles
+                    col_circles.sort(key=lambda c: c[0])  # Sort by X within column
+                    
+                    # Take the last 4 circles as option circles (in case there are extra circles)
+                    option_circles = col_circles[-4:]
+                    
+                    # Current question number
+                    current_question = question_counter
+                    question_counter += 1
+                    
+                    print(f"  Row {row_idx + 1}: Question {current_question}")
+                    
+                    # Check which option is filled
+                    filled_option = None
+                    for opt_idx, (x, y, r) in enumerate(option_circles):
+                        if self.is_circle_filled(x, y, r):
+                            filled_option = opt_idx + 1
+                            print(f"    Question {current_question}: Option {filled_option} is filled at ({x}, {y})")
+                            break
+                    
+                    if filled_option:
+                        filled_answers[current_question] = filled_option
+                        column_question_counts[col_idx] += 1
+        
+        print(f"Questions per column: {column_question_counts}")
+        print(f"Total questions detected: {sum(column_question_counts)}")
+        return filled_answers
+    
+    def _detect_columns_by_clustering(self, x_coords: List[int], width: int) -> List[Tuple[int, int]]:
+        """Detect column boundaries by clustering X coordinates"""
+        if not x_coords:
+            return []
+        
+        # Sort X coordinates
+        sorted_x = sorted(set(x_coords))
+        
+        # Find gaps to determine column boundaries
+        gaps = []
+        for i in range(1, len(sorted_x)):
+            gap = sorted_x[i] - sorted_x[i-1]
+            if gap > 50:  # Significant gap indicates column separation
+                gaps.append((sorted_x[i-1], sorted_x[i], gap))
+        
+        # Determine number of columns based on gaps
+        if len(gaps) == 0:
+            # Single column
+            return [(0, width)]
+        elif len(gaps) == 1:
+            # Two columns
+            mid_point = (gaps[0][0] + gaps[0][1]) // 2
+            return [(0, mid_point), (mid_point, width)]
+        elif len(gaps) == 2:
+            # Three columns
+            mid1 = (gaps[0][0] + gaps[0][1]) // 2
+            mid2 = (gaps[1][0] + gaps[1][1]) // 2
+            return [(0, mid1), (mid1, mid2), (mid2, width)]
+        else:
+            # Four columns (take largest 3 gaps)
+            gaps.sort(key=lambda g: g[2], reverse=True)
+            boundaries = []
+            for gap in gaps[:3]:
+                boundaries.append((gap[0] + gap[1]) // 2)
+            boundaries.sort()
+            
+            columns = [(0, boundaries[0])]
+            for i in range(1, len(boundaries)):
+                columns.append((boundaries[i-1], boundaries[i]))
+            columns.append((boundaries[-1], width))
+            return columns
+    
+    def _group_circles_by_rows(self, circles: List[Tuple[int, int, int]]) -> Dict[int, List[Tuple[int, int, int]]]:
+        """Group circles by rows using Y coordinate with dynamic tolerance"""
         rows = {}
-        row_tolerance = 25  # Tolerance for same row
+        row_tolerance = 20  # Base tolerance
         
         for x, y, r in circles:
             found_row = False
-            for row_y in rows.keys():
+            
+            # Try to find existing row within tolerance
+            for row_y in list(rows.keys()):
                 if abs(y - row_y) <= row_tolerance:
                     rows[row_y].append((x, y, r))
                     found_row = True
@@ -208,122 +382,24 @@ class OMRAnalyzer:
             if not found_row:
                 rows[y] = [(x, y, r)]
         
-        # Sort rows by Y coordinate (top to bottom)
-        sorted_rows = sorted(rows.items(), key=lambda r: r[0])
+        return rows
+    
+    def _assign_circles_to_columns(self, row_circles: List[Tuple[int, int, int]], columns: List[Tuple[int, int]]) -> Dict[int, List[Tuple[int, int, int]]]:
+        """Assign circles in a row to their respective columns"""
+        col_groups = {}
         
-        # Step 2: Analyze layout - detect number of columns
-        sample_row_sizes = [len(row_circles) for _, row_circles in sorted_rows[:3]]
-        avg_circles_per_row = sum(sample_row_sizes) / len(sample_row_sizes) if sample_row_sizes else 4
-        
-        print(f"Average circles per row: {avg_circles_per_row:.1f}")
-        
-        # Determine layout type
-        if avg_circles_per_row <= 5:  # Single question per row (vertical layout)
-            num_columns = 1
-            questions_per_row = 1
-        elif avg_circles_per_row <= 10:  # 2 questions per row
-            num_columns = 2  
-            questions_per_row = 2
-        elif avg_circles_per_row <= 15:  # 3 questions per row
-            num_columns = 3
-            questions_per_row = 3
-        else:  # 4+ questions per row
-            num_columns = 4
-            questions_per_row = 4
-        
-        print(f"Detected layout: {num_columns} columns, {questions_per_row} questions per row")
-        
-        # Step 3: Detect columns by X coordinates
-        if num_columns > 1:
-            # Find column boundaries
-            all_x = [c[0] for row_circles in rows.values() for c in row_circles]
-            all_x.sort()
+        for circle in row_circles:
+            x, y, r = circle
             
-            # Use K-means-like approach to find column centers
-            column_centers = []
-            if num_columns == 2:
-                mid_x = width // 2
-                column_centers = [width // 4, 3 * width // 4]
-            elif num_columns == 3:
-                column_centers = [width // 6, width // 2, 5 * width // 6]
-            else:  # 4 columns
-                column_centers = [width // 8, 3 * width // 8, 5 * width // 8, 7 * width // 8]
+            # Find which column this circle belongs to
+            for col_idx, (col_start, col_end) in enumerate(columns):
+                if col_start <= x < col_end:
+                    if col_idx not in col_groups:
+                        col_groups[col_idx] = []
+                    col_groups[col_idx].append(circle)
+                    break
         
-        # Step 4: Process each row and assign question numbers column-wise
-        column_question_counts = [0] * num_columns  # Track questions per column
-        
-        for row_idx, (row_y, row_circles) in enumerate(sorted_rows):
-            # Sort circles in this row by X coordinate (left to right)
-            row_circles.sort(key=lambda c: c[0])
-            
-            if num_columns == 1:
-                # Single column layout
-                if len(row_circles) >= 4:  # Should have 4 option circles
-                    option_circles = row_circles[-4:]  # Last 4 are options
-                    question_num = row_idx + 1
-                    
-                    for opt_idx, (x, y, r) in enumerate(option_circles):
-                        if self.is_circle_filled(x, y, r):
-                            filled_answers[question_num] = opt_idx + 1
-                            break
-            
-            else:
-                # Multi-column layout
-                # Group circles by columns
-                col_groups = [[] for _ in range(num_columns)]
-                
-                for circle in row_circles:
-                    x, y, r = circle
-                    # Determine which column this circle belongs to
-                    min_dist = float('inf')
-                    best_col = 0
-                    
-                    for col_idx, center_x in enumerate(column_centers):
-                        dist = abs(x - center_x)
-                        if dist < min_dist:
-                            min_dist = dist
-                            best_col = col_idx
-                    
-                    col_groups[best_col].append(circle)
-                
-                # Process each column in this row
-                for col_idx, col_circles in enumerate(col_groups):
-                    if len(col_circles) >= 4:  # Should have 4 option circles
-                        col_circles.sort(key=lambda c: c[0])  # Sort by X within column
-                        option_circles = col_circles[-4:]  # Last 4 are options
-                        
-                        # Calculate question number based on column-wise numbering
-                        # Different logic for different layouts:
-                        # Hope Wheeler (2 col): Row-based (Q1-Q10 left, Q11-Q20 right)
-                        # Nexes (4 col): Column-based (Q1-Q23 col1, Q24-Q46 col2, etc.)
-                        
-                        current_row = row_idx
-                        if num_columns == 2:
-                            # Hope Wheeler style: row-based numbering
-                            if col_idx == 0:  # Left column
-                                question_num = current_row + 1
-                            else:  # Right column  
-                                question_num = current_row + 11
-                        else:
-                            # Nexes style: column-based numbering
-                            # Each column gets 23 questions except last column
-                            questions_per_col = 23
-                            base_question = col_idx * questions_per_col + 1
-                            question_num = base_question + current_row
-                        
-                        # Check which option is filled
-                        filled_option = None
-                        for opt_idx, (x, y, r) in enumerate(option_circles):
-                            if self.is_circle_filled(x, y, r):
-                                filled_option = opt_idx + 1
-                                break
-                        
-                        if filled_option:
-                            filled_answers[question_num] = filled_option
-                            column_question_counts[col_idx] += 1  # Increment question count for this column
-        
-        print(f"Questions per column: {column_question_counts}")
-        return filled_answers
+        return col_groups
     
     def advanced_circle_detection(self) -> Dict[int, int]:
         """Advanced method with flexible layout detection"""
@@ -439,50 +515,18 @@ class OMRAnalyzer:
         # Get image dimensions
         height, width = self.gray.shape
         
-        # Use the same logic as flexible_layout_detection to organize circles
-        rows = {}
-        row_tolerance = 25  # Same as in flexible_layout_detection
+        # Use the same logic as flexible_layout_detection
+        all_x_coords = [c[0] for c in circles]
+        columns = self._detect_columns_by_clustering(all_x_coords, width)
+        num_columns = len(columns)
         
-        # Group circles by Y coordinate (rows) - same as analysis method
-        for x, y, r in circles:
-            found_row = False
-            for row_y in rows.keys():
-                if abs(y - row_y) <= row_tolerance:
-                    rows[row_y].append((x, y, r))
-                    found_row = True
-                    break
-            
-            if not found_row:
-                rows[y] = [(x, y, r)]
+        print(f"Detected {num_columns} columns for marking: {columns}")
         
-        # Sort rows by Y coordinate (top to bottom)
+        # Group circles by rows
+        rows = self._group_circles_by_rows(circles)
         sorted_rows = sorted(rows.items(), key=lambda r: r[0])
         
-        # Detect layout type (same logic as flexible_layout_detection)
-        sample_row_sizes = [len(row_circles) for _, row_circles in sorted_rows[:3]]
-        avg_circles_per_row = sum(sample_row_sizes) / len(sample_row_sizes) if sample_row_sizes else 4
-        
-        # Determine layout type
-        if avg_circles_per_row <= 5:  # Single question per row
-            num_columns = 1
-        elif avg_circles_per_row <= 10:  # 2 questions per row
-            num_columns = 2  
-        elif avg_circles_per_row <= 15:  # 3 questions per row
-            num_columns = 3
-        else:  # 4+ questions per row
-            num_columns = 4
-        
-        print(f"Detected layout for marking: {num_columns} columns, avg {avg_circles_per_row:.1f} circles per row")
-        
-        # Set up column centers for multi-column layouts
-        column_centers = []
-        if num_columns > 1:
-            if num_columns == 2:
-                column_centers = [width // 4, 3 * width // 4]
-            elif num_columns == 3:
-                column_centers = [width // 6, width // 2, 5 * width // 6]
-            else:  # 4 columns
-                column_centers = [width // 8, 3 * width // 8, 5 * width // 8, 7 * width // 8]
+        print(f"Detected {len(sorted_rows)} rows for marking")
         
         # Mark correct answers for unmatched questions with green circles
         for question_num, answer_info in unmatched_data.items():
@@ -497,7 +541,7 @@ class OMRAnalyzer:
                 
             # Find circles for this specific question using the same logic as analysis
             question_circles = self._find_circles_for_question_dynamic(
-                circles, question_num, sorted_rows, num_columns, column_centers, width
+                circles, question_num, sorted_rows, columns
             )
             
             # Sort circles by X coordinate to get option order (ক, খ, গ, ঘ)
@@ -562,63 +606,34 @@ class OMRAnalyzer:
         }
         return conversion_map.get(bangla_letter)
     
-    def _find_circles_for_question_dynamic(self, circles: List[Tuple[int, int, int]], question_num: int, sorted_rows: List, num_columns: int, column_centers: List, width: int) -> List[Tuple[int, int, int]]:
-        """Find circles for a specific question using the same logic as flexible_layout_detection"""
+    def _find_circles_for_question_dynamic(self, circles: List[Tuple[int, int, int]], question_num: int, sorted_rows: List, columns: List[Tuple[int, int]]) -> List[Tuple[int, int, int]]:
+        """Find circles for a specific question using the new column-wise sequential numbering logic"""
         
-        if num_columns == 1:
-            # Single column layout - question_num directly maps to row
-            target_row_idx = question_num - 1
-            if target_row_idx < len(sorted_rows):
-                row_y, row_circles = sorted_rows[target_row_idx]
-                row_circles.sort(key=lambda c: c[0])  # Sort by X coordinate
-                if len(row_circles) >= 4:
-                    return row_circles[-4:]  # Return last 4 circles (option circles)
+        # Use the same column-wise logic as flexible_layout_detection
+        question_counter = 1
+        num_columns = len(columns)
         
-        else:
-            # Multi-column layout - need to reverse engineer which row/column has this question
+        # Process each column from left to right (same as analysis)
+        for col_idx in range(num_columns):
+            # For each row, check if this column has circles
             for row_idx, (row_y, row_circles) in enumerate(sorted_rows):
                 # Sort circles in this row by X coordinate
                 row_circles.sort(key=lambda c: c[0])
                 
                 # Group circles by columns
-                col_groups = [[] for _ in range(num_columns)]
+                col_groups = self._assign_circles_to_columns(row_circles, columns)
                 
-                for circle in row_circles:
-                    x, y, r = circle
-                    # Determine which column this circle belongs to
-                    min_dist = float('inf')
-                    best_col = 0
-                    
-                    for col_idx, center_x in enumerate(column_centers):
-                        dist = abs(x - center_x)
-                        if dist < min_dist:
-                            min_dist = dist
-                            best_col = col_idx
-                    
-                    col_groups[best_col].append(circle)
+                # Get circles for current column
+                col_circles = col_groups.get(col_idx, [])
                 
-                # Check each column in this row
-                for col_idx, col_circles in enumerate(col_groups):
-                    if len(col_circles) >= 4:  # Should have 4 option circles
-                        col_circles.sort(key=lambda c: c[0])  # Sort by X within column
-                        
-                        # Calculate question number for this position (same logic as analysis)
-                        current_row = row_idx
-                        if num_columns == 2:
-                            # Hope Wheeler style: row-based numbering
-                            if col_idx == 0:  # Left column
-                                calc_question_num = current_row + 1
-                            else:  # Right column  
-                                calc_question_num = current_row + 11
-                        else:
-                            # Nexes style: column-based numbering
-                            questions_per_col = 23
-                            base_question = col_idx * questions_per_col + 1
-                            calc_question_num = base_question + current_row
-                        
-                        # If this matches our target question number, return the option circles
-                        if calc_question_num == question_num:
-                            return col_circles[-4:]  # Return last 4 circles (option circles)
+                if len(col_circles) >= 4:  # Should have at least 4 option circles
+                    col_circles.sort(key=lambda c: c[0])  # Sort by X within column
+                    
+                    # Check if this is our target question
+                    if question_counter == question_num:
+                        return col_circles[-4:]  # Return last 4 circles (option circles)
+                    
+                    question_counter += 1
         
         return []  # Question not found
     
